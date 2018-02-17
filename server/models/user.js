@@ -42,16 +42,43 @@ UserSchema.methods.toJSON = function () {
   return _.pick(userObject, ['_id', 'email']);
 };
 
+// UserSchema.methods defines an instance method
 UserSchema.methods.generateAuthToken = function () {
+
+  // instance methods get called with an individual document
   var user = this;
   var access = 'auth';
-  var token = jwt.sign({_id: user._id.toHexString(), access}, 'abc1234').toString();
+  var token = jwt.sign({_id: user._id.toHexString(), access}, 'abc123').toString();
 
   user.tokens.push({access, token});
   return user.save().then(() => {
     return token;
   });
 };
+
+// UserSchema.statics defines a model method
+UserSchema.statics.findByToken = function (token) {
+  // model methods get called with the model (User) as the 'this' binding
+  var User = this;
+  var decoded;
+
+  try {
+    decoded = jwt.verify(token, 'abc123');
+  } catch (e) {
+    // return new Promise(function(resolve, reject) {
+    //   reject();
+    // });
+    return Promise.reject();
+  }
+
+  return User.findOne({
+    _id: decoded._id,
+    'tokens.token': token,
+    'tokens.access': 'auth'
+  });
+
+};
+
 
 var User = mongoose.model('User', UserSchema);
 
