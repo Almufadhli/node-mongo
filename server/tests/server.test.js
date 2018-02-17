@@ -12,7 +12,7 @@ const people = [{
   _id: new ObjectID(),
   nationalid: 'Second test person',
   alive: true,
-  age: 20
+  deadAt: 222,
 }];
 
 beforeEach((done) => {
@@ -143,106 +143,57 @@ describe('DELETE /people/:id', () => {
         .expect(404)
         .end(done)
     });
-
-
-
   });
 
 
+describe('PATCH /people/:id', () => {
+
+  it('Should update the person document', (done) => {
+    var hexId = people[1]._id.toHexString();
+    var nationalid = '1085111423'
+
+    request(app)
+      .patch(`/people/${hexId}`)
+      .send({
+        alive: false,
+        nationalid
+      })
+      .expect(200)
+      .expect((res) => {
+        expect(res.body.person.nationalid).toBe(nationalid);
+        expect(res.body.person.alive).toBe(false);
+        expect(res.body.person.deadAt).toBeA('number');
+        done();
+      })
+      .end((err, res) => {
+        if (err) {
+          return done(err);
+        }
+      })
+  });
 
 
-  // it('should return 404 if person not found', (done) => {
-  //   var hexId = new ObjectID().toHexString();
-  //
-  //   request(app)
-  //     .get(`/people/${hexId}`)
-  //     .expect(404)
-  //     .end(done);
-  // });
-  //
-  // it('should return 404 for non-object ids', (done) => {
-  //   request(app)
-  //     .get('/people/123abc')
-  //     .expect(404)
-  //     .end(done);
-  // });
+  it('Should clear deadAt when person is alive', (done) => {
+    var hexId = people[0]._id.toHexString();
+    var nationalid = '10851112341 test'
 
-//
-// describe('DELETE /people/:id', () => {
-//   it('should remove a person', (done) => {
-//     var hexId = people[1]._id.toHexString();
-//
-//     request(app)
-//       .delete(`/people/${hexId}`)
-//       .expect(200)
-//       .expect((res) => {
-//         expect(res.body.person._id).toBe(hexId);
-//       })
-//       .end((err, res) => {
-//         if (err) {
-//           return done(err);
-//         }
-//
-//         Person.findById(hexId).then((person) => {
-//           expect(person).toNotExist();
-//           done();
-//         }).catch((e) => done(e));
-//       });
-//   });
-//
-//   it('should return 404 if person not found', (done) => {
-//     var hexId = new ObjectID().toHexString();
-//
-//     request(app)
-//       .delete(`/people/${hexId}`)
-//       .expect(404)
-//       .end(done);
-//   });
-//
-//   it('should return 404 if object id is invalid', (done) => {
-//     request(app)
-//       .delete('/people/123abc')
-//       .expect(404)
-//       .end(done);
-//   });
-// });
-//
-// describe('PATCH /people/:id', () => {
-//   it('should update the person', (done) => {
-//     var hexId = people[0]._id.toHexString();
-//     var nationalid = 'This should be the new nationalid';
-//
-//     request(app)
-//       .patch(`/people/${hexId}`)
-//       .send({
-//         completed: true,
-//         nationalid
-//       })
-//       .expect(200)
-//       .expect((res) => {
-//         expect(res.body.person.nationalid).toBe(nationalid);
-//         expect(res.body.person.completed).toBe(true);
-//         expect(res.body.person.completedAt).toBeA('number');
-//       })
-//       .end(done);
-//   });
-//
-//   it('should clear completedAt when person is not completed', (done) => {
-//     var hexId = people[1]._id.toHexString();
-//     var nationalid = 'This should be the new nationalid!!';
-//
-//     request(app)
-//       .patch(`/people/${hexId}`)
-//       .send({
-//         completed: false,
-//         nationalid
-//       })
-//       .expect(200)
-//       .expect((res) => {
-//         expect(res.body.person.nationalid).toBe(nationalid);
-//         expect(res.body.person.completed).toBe(false);
-//         expect(res.body.person.completedAt).toNotExist();
-//       })
-//       .end(done);
-//   });
-// });
+    request(app)
+      .patch(`/people/${hexId}`)
+      .send({
+        alive: true,
+        nationalid
+      })
+      .expect(200)
+      .expect((res) => {
+        expect(res.body.person.nationalid).toBe(nationalid);
+        expect(res.body.person.alive).toBe(true);
+        expect(res.body.person.deadAt).toNotExist();
+        done();
+      })
+      .end((err, res) => {
+        if (err) {
+          return done(err);
+        }
+      })
+  });
+});

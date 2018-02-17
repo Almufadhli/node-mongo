@@ -27,7 +27,7 @@ var Person = mongoose.model('Person', {
   , maritalStatus : String
   , image         : String
   , alive         : Boolean
-  , deadAt        : Date
+  , deadAt        : Number
   , age           : Number
 });
 
