@@ -53,7 +53,6 @@ app.get('/people/:id', (req, res) => {
   });
 });
 
-
 app.delete('/people/:id', (req, res) => {
   var id = req.params.id;
   if (!ObjectID.isValid(id)) {
@@ -70,7 +69,6 @@ app.delete('/people/:id', (req, res) => {
     res.status(400).send();
   });
 });
-
 
 app.patch('/people/:id', (req, res) => {
   var id = req.params.id;
@@ -100,65 +98,24 @@ app.patch('/people/:id', (req, res) => {
 
 });
 
+///////////////////////////////////
+
+
+app.post('/users', (req, res) => {
+  var body = _.pick(req.body, ['email', 'password']);
+  var user = new User(body);
 
 
 
+  user.save().then(() => {
+    return user.generateAuthToken();
+  }).then((token) => {
+    res.header('x-auth', token).send(user);
+  }).catch((e) => {
+    res.status(400).send(e);
+  })
+});
 
-// app.delete('/people/:id', (req, res) => {
-//   var id = req.params.id;
-//
-//   if (!ObjectID.isValid(id)) {
-//     return res.status(404).send();
-//   }
-//
-//   Person.findByIdAndRemove(id).then((person) => {
-//     if (!person) {
-//       return res.status(404).send();
-//     }
-//
-//     res.send({person});
-//   }).catch((e) => {
-//     res.status(400).send();
-//   });
-// });
-//
-// app.patch('/people/:id', (req, res) => {
-//   var id = req.params.id;
-//   var body = _.pick(req.body, ['nationalid', 'completed']);
-//
-//   if (!ObjectID.isValid(id)) {
-//     return res.status(404).send();
-//   }
-//
-//   if (_.isBoolean(body.completed) && body.completed) {
-//     body.completedAt = new Date().getTime();
-//   } else {
-//     body.completed = false;
-//     body.completedAt = null;
-//   }
-//
-//   Person.findByIdAndUpdate(id, {$set: body}, {new: true}).then((person) => {
-//     if (!person) {
-//       return res.status(404).send();
-//     }
-//
-//     res.send({person});
-//   }).catch((e) => {
-//     res.status(400).send();
-//   })
-// });
-//
-// // POST /users
-// app.post('/users', (req, res) => {
-//   var body = _.pick(req.body, ['email', 'password']);
-//   var user = new User(body);
-//
-//   user.save().then((user) => {
-//     res.send(user);
-//   }).catch((e) => {
-//     res.status(400).send(e);
-//   })
-// });
 
 app.listen(port, () => {
   console.log(`Started up at port ${port}`);
