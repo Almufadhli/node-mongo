@@ -1,4 +1,4 @@
-//require('./config/config');
+require('./config/config');
 
 const _ = require('lodash');
 const express = require('express');
@@ -52,6 +52,28 @@ app.get('/people/:id', (req, res) => {
     res.status(400).send();
   });
 });
+
+
+app.delete('/people/:id', (req, res) => {
+  var id = req.params.id;
+  if (!ObjectID.isValid(id)) {
+    return res.status(404).send();
+  }
+
+  Person.findByIdAndRemove(id).then((person) => {
+    if (!person) {
+      return res.status(404).send();
+    }
+
+    res.status(200).send({person});
+  }).catch((e) => {
+    res.status(400).send();
+  });
+});
+
+
+
+
 
 // app.delete('/people/:id', (req, res) => {
 //   var id = req.params.id;
