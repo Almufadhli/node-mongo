@@ -4,8 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "start": "node server/server.js",
     "test": "mocha --timeout=2100 server/**/*.test.js",
     "test-watch": "nodemon --exec npm test"
+  },
+  "engines": {
+    "node": "9.5.0"
   },
   "author": "",
   "license": "ISC",
