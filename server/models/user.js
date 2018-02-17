@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const validator = require('validator');
 const jwt = require('jsonwebtoken');
 const _ = require('lodash');
+const bcrypt = require('bcryptjs');
 
 var UserSchema = new mongoose.Schema({
   email: {
@@ -79,6 +80,21 @@ UserSchema.statics.findByToken = function (token) {
 
 };
 
+// run this event before saving the docu to the database. This is mongoose middleware
+UserSchema.pre('save', function (next) {
+  var user = this;
+
+  if (user.isModified('password')) {
+    bcrypt.hash(user.password, 8, function (err, hash) {
+      user.password = hash;
+      next();
+    });
+
+
+  } else {
+    next();
+  }
+});
 
 var User = mongoose.model('User', UserSchema);
 
