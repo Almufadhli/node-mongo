@@ -65,7 +65,7 @@ app.delete('/people/:id', (req, res) => {
       return res.status(404).send();
     }
 
-    res.status(200).send({person});
+    res.send({person});
   }).catch((e) => {
     res.status(400).send();
   });

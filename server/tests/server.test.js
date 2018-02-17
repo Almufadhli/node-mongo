@@ -103,6 +103,50 @@ describe('GET /people/:id', () => {
       .expect(404)
       .end(done)
   });
+});
+
+describe('DELETE /people/:id', () => {
+    it('Should remove a person', (done) => {
+      var hexId = people[1]._id.toHexString();
+
+      request(app)
+        .delete(`/people/${hexId}`)
+        .expect(200)
+        .expect((res) => {
+          expect(res.body.person._id).toBe(hexId);
+        })
+        .end((err, res) => {
+          if (err) {
+            return done(err);
+          }
+
+          Person.findById(hexId).then((person) => {
+            expect(person).toNotExist();
+            done();
+          }).catch((e) => done(e));
+        })
+    });
+
+
+    it('Should return 404 if person not found', (done) => {
+      var hexId = new ObjectID().toHexString();
+
+      request(app)
+        .delete(`/people/${hexId}`)
+        .expect(404)
+        .end(done)
+    });
+
+    it('Should return 404 if ObjectId is invalid', (done) => {
+      request(app)
+        .delete('/people/123dadsa')
+        .expect(404)
+        .end(done)
+    });
+
+
+
+  });
 
 
 
@@ -122,7 +166,7 @@ describe('GET /people/:id', () => {
   //     .expect(404)
   //     .end(done);
   // });
-});
+
 //
 // describe('DELETE /people/:id', () => {
 //   it('should remove a person', (done) => {
