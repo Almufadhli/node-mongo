@@ -72,6 +72,35 @@ app.delete('/people/:id', (req, res) => {
 });
 
 
+app.patch('/people/:id', (req, res) => {
+  var id = req.params.id;
+  var body = _.pick(req.body, ['nationalid', 'name.first', 'name.father', 'name.family', 'alive']);
+
+  if (!ObjectID.isValid(id)) {
+    return res.status(404).send();
+  }
+
+  if (_.isBoolean(body.alive) && !body.alive) {
+    body.deadAt = new Date().getTime();
+  } else {
+    body.alive = true;
+    body.deadAt = null;
+  }
+
+  Person.findByIdAndUpdate(id, {$set: body}, {new: true}).then((person) => {
+    if (!person) {
+      return res.status(404).send();
+    }
+
+    res.send({person});
+
+  }).catch((err) => {
+    res.status(400).send();
+  });
+
+});
+
+
 
 
 
